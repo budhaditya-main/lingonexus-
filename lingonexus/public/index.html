@@ -1,0 +1,1241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LingoNexus - Cultural Intelligence Engine</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,900;1,400;1,500;1,700&family=DM+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+:root {
+  --paper:     #f5f0e8;
+  --paper2:    #ede8de;
+  --paper3:    #e4ddd0;
+  --white:     #faf7f2;
+  --ink:       #111111;
+  --ink2:      #2a2a2a;
+  --ink3:      #444444;
+  --muted:     #888880;
+  --border:    #d4cfc5;
+  --border2:   #c2bdb0;
+  --red:       #c0392b;
+  --red-bg:    rgba(192,57,43,0.07);
+  --red-line:  rgba(192,57,43,0.2);
+  --orange:    #c0622b;
+  --ora-bg:    rgba(192,98,43,0.07);
+  --ora-line:  rgba(192,98,43,0.2);
+  --green:     #2a6b4a;
+  --grn-bg:    rgba(42,107,74,0.07);
+  --grn-line:  rgba(42,107,74,0.2);
+  --accent:    #1a1a1a;
+  --ghost:     rgba(17,17,17,0.04);
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  line-height: 1.7;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Subtle paper texture */
+body::before {
+  content: '';
+  position: fixed; inset: 0; z-index: 0;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
+  opacity: 1;
+}
+
+.app {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  min-height: 100vh;
+  position: relative; z-index: 1;
+}
+
+/* SIDEBAR */
+.sidebar {
+  background: var(--white);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+.sidebar-brand {
+  padding: 36px 28px 28px;
+  border-bottom: 2px solid var(--ink);
+}
+
+.wordmark {
+  display: flex;
+  align-items: baseline;
+  margin-bottom: 6px;
+}
+
+.wm-lingo {
+  font-family: 'Playfair Display', serif;
+  font-weight: 900;
+  font-size: 26px;
+  letter-spacing: -1px;
+  color: var(--ink);
+}
+
+.wm-nexus {
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 300;
+  font-size: 16px;
+  letter-spacing: 4px;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-left: 4px;
+  margin-bottom: 2px;
+}
+
+.brand-tag {
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 14px;
+  padding: 5px 10px;
+  border: 1px solid var(--border2);
+  border-radius: 2px;
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--green);
+  background: var(--grn-bg);
+}
+
+.status-dot {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--green);
+  animation: blink 2.5s ease-in-out infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.25; }
+}
+
+.sidebar-section {
+  padding: 22px 28px;
+  border-bottom: 1px solid var(--border);
+}
+
+.section-label {
+  font-size: 8px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 600;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.section-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.field { margin-bottom: 15px; }
+
+.field-label {
+  display: block;
+  font-size: 8px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink3);
+  font-weight: 600;
+  margin-bottom: 7px;
+}
+
+.field-input,
+.field-select,
+.field-textarea {
+  width: 100%;
+  background: var(--paper);
+  border: 1px solid var(--border2);
+  color: var(--ink);
+  padding: 10px 13px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12.5px;
+  border-radius: 3px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+  -webkit-appearance: none;
+}
+
+.field-input::placeholder,
+.field-textarea::placeholder {
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.field-input:focus,
+.field-select:focus,
+.field-textarea:focus {
+  border-color: var(--ink);
+  box-shadow: 0 0 0 3px rgba(17,17,17,0.06);
+  background: var(--white);
+}
+
+.field-textarea {
+  resize: vertical;
+  min-height: 82px;
+  line-height: 1.65;
+}
+
+.field-select option { background: var(--white); }
+.field-select optgroup { color: var(--muted); }
+
+.run-btn {
+  width: 100%;
+  padding: 13px;
+  background: var(--ink);
+  color: var(--paper);
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 700;
+  font-size: 11.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 4px;
+  position: relative;
+  overflow: hidden;
+}
+
+.run-btn::after {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%;
+  width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+  transition: left 0.5s;
+}
+
+.run-btn:hover:not(:disabled)::after { left: 100%; }
+
+.run-btn:hover:not(:disabled) {
+  background: var(--ink2);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(17,17,17,0.2);
+}
+
+.run-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+.ring {
+  width: 13px; height: 13px;
+  border: 2px solid rgba(245,240,232,0.3);
+  border-top-color: var(--paper);
+  border-radius: 50%;
+  animation: spin 0.65s linear infinite;
+  display: none;
+}
+
+.sidebar-foot {
+  padding: 18px 28px;
+  margin-top: auto;
+  border-top: 1px solid var(--border);
+}
+
+.foot-text {
+  font-size: 10px;
+  color: var(--muted);
+  line-height: 1.9;
+  font-style: italic;
+}
+
+/* MAIN */
+.main {
+  padding: 52px 64px 100px;
+  overflow-y: auto;
+  min-height: 100vh;
+}
+
+/* EMPTY STATE */
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 78vh;
+  text-align: center;
+  animation: fadeIn 0.5s ease both;
+}
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+.empty-vol {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 9px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.empty-headline {
+  font-family: 'Playfair Display', serif;
+  font-size: 58px;
+  font-weight: 900;
+  line-height: 1.0;
+  color: var(--ink);
+  letter-spacing: -2px;
+  margin-bottom: 6px;
+}
+
+.empty-headline em {
+  font-style: italic;
+  font-weight: 400;
+}
+
+.empty-rule {
+  width: 100%;
+  max-width: 460px;
+  height: 2px;
+  background: var(--ink);
+  margin: 20px auto;
+}
+
+.empty-rule-thin {
+  width: 100%;
+  max-width: 460px;
+  height: 1px;
+  background: var(--border2);
+  margin: 8px auto 20px;
+}
+
+.empty-desc {
+  font-size: 13px;
+  color: var(--ink3);
+  max-width: 420px;
+  line-height: 1.9;
+  font-weight: 400;
+}
+
+.empty-kicker {
+  margin-top: 28px;
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* SKELETON */
+.skeleton { display: none; }
+
+.skel-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 36px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid var(--ink);
+}
+
+.skel-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--ink);
+  animation: pulseDot 1.4s ease-in-out infinite;
+}
+
+@keyframes pulseDot {
+  0%, 100% { opacity: 0.2; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1); }
+}
+
+.skel-msg {
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  font-size: 16px;
+  color: var(--ink3);
+}
+
+.skel-line {
+  height: 14px;
+  border-radius: 2px;
+  margin-bottom: 10px;
+  background: linear-gradient(90deg, var(--paper2) 25%, var(--paper3) 50%, var(--paper2) 75%);
+  background-size: 600px 100%;
+  animation: shimmer 1.6s infinite;
+}
+
+@keyframes shimmer { to { background-position: -600px 0; } }
+
+/* RESULTS */
+.results { display: none; }
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.fu  { animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.fu1 { animation-delay: 0.03s; }
+.fu2 { animation-delay: 0.09s; }
+.fu3 { animation-delay: 0.15s; }
+.fu4 { animation-delay: 0.21s; }
+.fu5 { animation-delay: 0.27s; }
+.fu6 { animation-delay: 0.33s; }
+
+/* Result header - newspaper style */
+.result-dateline {
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.result-dateline::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border2);
+}
+
+.result-rule-top {
+  height: 3px;
+  background: var(--ink);
+  margin-bottom: 16px;
+  border-radius: 1px;
+}
+
+.result-slogan {
+  font-family: 'Playfair Display', serif;
+  font-size: 52px;
+  font-weight: 900;
+  font-style: italic;
+  line-height: 1.05;
+  color: var(--ink);
+  margin-bottom: 4px;
+  letter-spacing: -1.5px;
+}
+
+.result-rule-mid {
+  height: 1px;
+  background: var(--border2);
+  margin: 16px 0;
+}
+
+.result-route {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 11.5px;
+  color: var(--ink3);
+  font-weight: 500;
+  flex-wrap: wrap;
+  margin-bottom: 32px;
+}
+
+.route-from, .route-to {
+  padding: 3px 10px;
+  border: 1px solid var(--border2);
+  border-radius: 2px;
+  font-size: 11px;
+  background: var(--white);
+}
+
+.route-arrow { color: var(--ink); font-size: 14px; }
+
+.risk-badge {
+  padding: 3px 10px;
+  border-radius: 2px;
+  font-size: 8.5px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.badge-high   { background: var(--red-bg);  border: 1px solid var(--red-line);  color: var(--red); }
+.badge-medium { background: var(--ora-bg);  border: 1px solid var(--ora-line);  color: var(--orange); }
+.badge-low    { background: var(--grn-bg);  border: 1px solid var(--grn-line);  color: var(--green); }
+
+/* Misstep - newspaper correction box */
+.misstep {
+  border: 2px solid var(--red);
+  border-radius: 3px;
+  padding: 20px 24px;
+  margin-bottom: 28px;
+  background: var(--red-bg);
+  position: relative;
+}
+
+.misstep-label {
+  font-size: 8px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--red);
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.misstep-text {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px;
+  font-style: italic;
+  color: var(--ink);
+  line-height: 1.4;
+  margin-bottom: 6px;
+}
+
+.misstep-sub {
+  font-size: 11px;
+  color: var(--red);
+  opacity: 0.7;
+}
+
+/* Score strip */
+.score-strip {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  margin-bottom: 28px;
+  border: 1px solid var(--border2);
+  border-radius: 3px;
+  overflow: hidden;
+  background: var(--border2);
+}
+
+.score-card {
+  background: var(--white);
+  padding: 20px 22px;
+  position: relative;
+  transition: background 0.2s;
+}
+
+.score-card:hover { background: var(--paper2); }
+
+.score-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+}
+
+.s-high::before   { background: var(--red); }
+.s-medium::before { background: var(--orange); }
+.s-low::before    { background: var(--green); }
+
+.score-label {
+  font-size: 8px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 12px;
+  font-weight: 600;
+}
+
+.score-number {
+  font-family: 'Playfair Display', serif;
+  font-size: 48px;
+  font-weight: 900;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.s-high   .score-number { color: var(--red); }
+.s-medium .score-number { color: var(--orange); }
+.s-low    .score-number { color: var(--green); }
+
+.score-risk {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.s-high   .score-risk { color: var(--red); }
+.s-medium .score-risk { color: var(--orange); }
+.s-low    .score-risk { color: var(--green); }
+
+/* Audit blocks */
+.audit-block {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  margin-bottom: 12px;
+  overflow: hidden;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.audit-block:hover {
+  border-color: var(--border2);
+  box-shadow: 0 2px 12px rgba(17,17,17,0.06);
+}
+
+.block-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 22px;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.15s;
+}
+
+.block-header:hover { background: var(--ghost); }
+
+.block-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.block-icon {
+  width: 34px; height: 34px;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+  border: 1px solid var(--border);
+  background: var(--paper);
+}
+
+.block-name {
+  font-family: 'Playfair Display', serif;
+  font-weight: 700;
+  font-size: 15px;
+  margin-bottom: 1px;
+  color: var(--ink);
+}
+
+.block-sub {
+  font-size: 10px;
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.block-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.block-chevron {
+  color: var(--muted);
+  font-size: 11px;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.block-chevron.open { transform: rotate(180deg); }
+
+.block-body {
+  border-top: 1px solid var(--border);
+  padding: 24px;
+  display: none;
+  background: var(--paper);
+}
+
+.block-body.open {
+  display: block;
+  animation: expandIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes expandIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.finding {
+  display: flex;
+  margin-bottom: 22px;
+  padding-bottom: 22px;
+  border-bottom: 1px solid var(--border);
+  animation: fadeUp 0.4s ease both;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.finding:last-of-type {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.finding-bar {
+  width: 2px;
+  flex-shrink: 0;
+  margin-right: 18px;
+  border-radius: 2px;
+  align-self: stretch;
+}
+
+.bar-high   { background: linear-gradient(to bottom, var(--red), rgba(192,57,43,0.1)); }
+.bar-medium { background: linear-gradient(to bottom, var(--orange), rgba(192,98,43,0.1)); }
+.bar-low    { background: linear-gradient(to bottom, var(--green), rgba(42,107,74,0.1)); }
+
+.finding-issue {
+  font-family: 'Playfair Display', serif;
+  font-weight: 700;
+  font-size: 14px;
+  margin-bottom: 7px;
+  color: var(--ink);
+}
+
+.finding-detail {
+  font-size: 12.5px;
+  color: var(--ink3);
+  line-height: 1.9;
+  margin-bottom: 14px;
+  font-weight: 400;
+}
+
+.sug-box {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 14px 16px;
+}
+
+.sug-title {
+  font-size: 8px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink3);
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.sug-item {
+  display: flex;
+  gap: 10px;
+  font-size: 12px;
+  line-height: 1.75;
+  margin-bottom: 8px;
+  color: var(--ink3);
+  font-weight: 400;
+}
+
+.sug-item:last-child { margin-bottom: 0; }
+
+.sug-n {
+  color: var(--ink);
+  font-weight: 700;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.adapt-box {
+  margin-top: 24px;
+  background: var(--white);
+  border: 1px solid var(--border2);
+  border-radius: 3px;
+  padding: 22px;
+}
+
+.adapt-label {
+  font-size: 8px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--ink3);
+  font-weight: 700;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.adapt-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.adapt-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.adapt-opt {
+  background: var(--paper);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 16px 18px;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.adapt-opt:hover {
+  border-color: var(--ink);
+  background: var(--paper2);
+}
+
+.adapt-opt-label {
+  font-size: 8px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 7px;
+  font-weight: 600;
+}
+
+.adapt-opt-text {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px;
+  font-style: italic;
+  color: var(--ink);
+  line-height: 1.3;
+  margin-bottom: 7px;
+  font-weight: 500;
+}
+
+.adapt-opt-note {
+  font-size: 11.5px;
+  color: var(--ink3);
+  line-height: 1.75;
+  font-weight: 400;
+}
+
+.disclaimer-block {
+  margin-top: 32px;
+  padding: 22px 26px;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-top: 3px solid var(--ink);
+  border-radius: 0 0 3px 3px;
+}
+
+.disclaimer-block p {
+  font-size: 11.5px;
+  color: var(--ink3);
+  line-height: 1.9;
+  font-weight: 400;
+}
+
+.disclaimer-block strong { color: var(--ink); font-weight: 700; }
+
+.made-by {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: 0.06em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-style: italic;
+}
+
+.made-by span {
+  color: var(--ink);
+  font-style: normal;
+  font-weight: 600;
+}
+
+@media (max-width: 840px) {
+  .app { grid-template-columns: 1fr; }
+  .sidebar { position: static; height: auto; }
+  .main { padding: 28px 22px 70px; }
+  .score-strip { grid-template-columns: 1fr; gap: 0; }
+  .result-slogan { font-size: 36px; }
+  .empty-headline { font-size: 38px; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="wordmark">
+        <span class="wm-lingo">Lingo</span><span class="wm-nexus">nexus</span>
+      </div>
+      <div class="brand-tag">Cultural Intelligence Engine</div>
+      <div class="status-pill">
+        <div class="status-dot"></div>
+        Engine Active
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="section-label">Configure Audit</div>
+      <div class="field">
+        <label class="field-label">Brand Name</label>
+        <input class="field-input" id="f-brand" placeholder="e.g. Nike, Zara, WOW!...">
+      </div>
+      <div class="field">
+        <label class="field-label">Slogan / Campaign Text</label>
+        <textarea class="field-textarea" id="f-slogan" placeholder="Paste the original campaign text here..."></textarea>
+      </div>
+      <div class="field">
+        <label class="field-label">Source Market</label>
+        <select class="field-select" id="f-source">
+          <option value="United States">United States</option>
+          <option value="United Kingdom">United Kingdom</option>
+          <option value="France">France</option>
+          <option value="Germany">Germany</option>
+          <option value="Japan">Japan</option>
+          <option value="South Korea">South Korea</option>
+          <option value="Australia">Australia</option>
+          <option value="Italy">Italy</option>
+        </select>
+      </div>
+      <div class="field">
+        <label class="field-label">Target Market</label>
+        <select class="field-select" id="f-target">
+          <optgroup label="South Asia">
+            <option value="India">India</option>
+          </optgroup>
+          <optgroup label="East Asia">
+            <option value="China">China</option>
+            <option value="Japan">Japan</option>
+            <option value="South Korea">South Korea</option>
+          </optgroup>
+          <optgroup label="Middle East">
+            <option value="Saudi Arabia">Saudi Arabia</option>
+            <option value="UAE">UAE</option>
+            <option value="Egypt">Egypt</option>
+            <option value="Turkey">Turkey</option>
+          </optgroup>
+          <optgroup label="Africa">
+            <option value="Nigeria">Nigeria</option>
+            <option value="South Africa">South Africa</option>
+          </optgroup>
+          <optgroup label="Americas">
+            <option value="Brazil">Brazil</option>
+            <option value="Mexico">Mexico</option>
+          </optgroup>
+          <optgroup label="Europe and Other">
+            <option value="Russia">Russia</option>
+            <option value="Indonesia">Indonesia</option>
+            <option value="Poland">Poland</option>
+          </optgroup>
+        </select>
+      </div>
+      <button class="run-btn" id="run-btn" onclick="runAudit()">
+        <span id="btn-label">Run Audit</span>
+        <div class="ring" id="ring"></div>
+      </button>
+    </div>
+
+    <div class="sidebar-foot">
+      <div class="foot-text">LingoNexus audits and flags.<br>It does not decide. Humans do.</div>
+    </div>
+  </aside>
+
+  <main class="main" id="main">
+
+    <div class="empty" id="empty-state">
+      <div class="empty-vol">LingoNexus - Vol. 01</div>
+      <div class="empty-headline">Does your<br>brand <em>travel?</em></div>
+      <div class="empty-rule"></div>
+      <div class="empty-rule-thin"></div>
+      <div class="empty-desc">Paste any global campaign slogan, select your source and target market, and LingoNexus audits it across linguistic, emotional, cultural, and political dimensions.</div>
+      <div class="empty-kicker">Configure audit in the sidebar to begin</div>
+    </div>
+
+    <div class="skeleton" id="skeleton">
+      <div class="skel-header">
+        <div class="skel-dot"></div>
+        <div class="skel-msg">Auditing cultural context...</div>
+      </div>
+      <div style="margin-bottom:32px;">
+        <div class="skel-line" style="width:130px;height:9px;margin-bottom:14px;"></div>
+        <div class="skel-line" style="width:70%;height:44px;margin-bottom:12px;border-radius:3px;"></div>
+        <div class="skel-line" style="width:240px;height:9px;"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1px;margin-bottom:28px;background:var(--border2);border-radius:3px;overflow:hidden;">
+        <div class="skel-line" style="height:96px;border-radius:0;margin:0;"></div>
+        <div class="skel-line" style="height:96px;border-radius:0;margin:0;"></div>
+        <div class="skel-line" style="height:96px;border-radius:0;margin:0;"></div>
+      </div>
+      <div class="skel-line" style="height:62px;border-radius:3px;margin-bottom:12px;"></div>
+      <div class="skel-line" style="height:220px;border-radius:3px;margin-bottom:12px;"></div>
+      <div class="skel-line" style="height:220px;border-radius:3px;"></div>
+    </div>
+
+    <div class="results" id="results"></div>
+  </main>
+</div>
+
+<script>
+const SYSTEM = `You are LingoNexus - a cultural intelligence and audit engine for global brand communication.
+
+When given a brand name, slogan, source market, and target market, perform a deep audit and return a JSON object. Your analysis must be specific, expert-level, and grounded in real cultural, emotional, historical, and political knowledge. Never be generic.
+
+Focus on:
+- What the words literally mean vs what they culturally communicate
+- Emotional register: does the tone, aspiration, or humor translate?
+- Political and historical context: does anything echo sensitive events, movements, or power dynamics?
+- Social context: class, gender, religion, caste where relevant
+- Symbolic meaning: colors, numbers, metaphors, imagery implied by the words
+
+Return ONLY a valid JSON object in this exact shape (no markdown, no preamble, no trailing text):
+
+{
+  "brand": string,
+  "slogan": string,
+  "source": string,
+  "target": string,
+  "literal_misstep": string,
+  "linguistic": {
+    "risk": "High" | "Medium" | "Low",
+    "score": number 10-95,
+    "findings": [
+      {
+        "level": "high" | "medium" | "low",
+        "issue": string,
+        "detail": string,
+        "suggestions": [string, string, string]
+      }
+    ],
+    "adaptations": [
+      { "label": string, "text": string, "note": string }
+    ]
+  },
+  "cultural": {
+    "risk": "High" | "Medium" | "Low",
+    "score": number 10-95,
+    "findings": [
+      {
+        "level": "high" | "medium" | "low",
+        "issue": string,
+        "detail": string,
+        "suggestions": [string, string, string]
+      }
+    ],
+    "adaptations": [
+      { "label": string, "text": string, "note": string }
+    ]
+  }
+}
+
+Rules:
+- Minimum 2, maximum 3 findings per category
+- Every finding must contain specific verifiable cultural or linguistic knowledge
+- Always provide 2 adaptation options per category
+- Never be generic. Reference real words, events, practices, history
+- Always return valid JSON only`;
+
+async function runAudit() {
+  const brand  = document.getElementById('f-brand').value.trim();
+  const slogan = document.getElementById('f-slogan').value.trim();
+  const source = document.getElementById('f-source').value;
+  const target = document.getElementById('f-target').value;
+
+  if (!brand || !slogan) { alert('Please enter a brand name and slogan.'); return; }
+
+  const btn = document.getElementById('run-btn');
+  btn.disabled = true;
+  document.getElementById('btn-label').textContent = 'Auditing...';
+  document.getElementById('ring').style.display = 'block';
+  document.getElementById('empty-state').style.display = 'none';
+  document.getElementById('results').style.display = 'none';
+  document.getElementById('skeleton').style.display = 'block';
+
+  try {
+    const response = await fetch("/api/audit", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 4000,
+        system: SYSTEM,
+        messages: [{ role: "user", content: `Brand: ${brand}\nSlogan: "${slogan}"\nSource Market: ${source}\nTarget Market: ${target}\n\nRun a full cultural and linguistic audit.` }]
+      })
+    });
+
+    const data = await response.json();
+    const raw = data.content.map(b => b.text || '').join('').trim();
+    const cleaned = raw.replace(/^```(?:json)?\s*/, '').replace(/\s*```$/, '').trim();
+    renderResults(JSON.parse(cleaned));
+
+  } catch (err) {
+    console.error(err);
+    document.getElementById('skeleton').style.display = 'none';
+    document.getElementById('empty-state').style.display = 'flex';
+    document.getElementById('empty-state').innerHTML = `
+      <div class="empty-headline" style="font-size:36px;">Audit <em>failed.</em></div>
+      <div class="empty-rule"></div>
+      <div class="empty-desc">${err.message || 'Something went wrong. Check your connection and try again.'}</div>`;
+  } finally {
+    btn.disabled = false;
+    document.getElementById('btn-label').textContent = 'Run Audit';
+    document.getElementById('ring').style.display = 'none';
+    document.getElementById('skeleton').style.display = 'none';
+  }
+}
+
+const riskClass  = r => ({ high:'badge-high', medium:'badge-medium', low:'badge-low' })[r.toLowerCase()];
+const scoreClass = r => ({ high:'s-high', medium:'s-medium', low:'s-low' })[r.toLowerCase()];
+const barClass   = l => ({ high:'bar-high', medium:'bar-medium', low:'bar-low' })[l];
+const cap        = s => s.charAt(0).toUpperCase() + s.slice(1);
+
+function overallRisk(a) {
+  const lvl = ['low','medium','high'];
+  return lvl[Math.max(lvl.indexOf(a.linguistic.risk.toLowerCase()), lvl.indexOf(a.cultural.risk.toLowerCase()))];
+}
+
+function findingsHtml(findings) {
+  return findings.map(f => `
+    <div class="finding">
+      <div class="finding-bar ${barClass(f.level)}"></div>
+      <div style="flex:1">
+        <div class="finding-issue">${f.issue}</div>
+        <div class="finding-detail">${f.detail}</div>
+        <div class="sug-box">
+          <div class="sug-title">Suggested Actions</div>
+          ${f.suggestions.map((s,i) => `<div class="sug-item"><span class="sug-n">${i+1}.</span><span>${s}</span></div>`).join('')}
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function adaptHtml(adaptations) {
+  if (!adaptations?.length) return '';
+  return `<div class="adapt-box">
+    <div class="adapt-label">Suggested Adaptations</div>
+    <div class="adapt-grid">
+      ${adaptations.map(a => `
+        <div class="adapt-opt">
+          <div class="adapt-opt-label">${a.label}</div>
+          <div class="adapt-opt-text">${a.text}</div>
+          <div class="adapt-opt-note">${a.note}</div>
+        </div>`).join('')}
+    </div>
+  </div>`;
+}
+
+function blockHtml(id, icon, name, sub, data, fu) {
+  const bid = `body-${id}`;
+  return `
+    <div class="audit-block fu ${fu}">
+      <div class="block-header" onclick="toggleBlock('${bid}')">
+        <div class="block-left">
+          <div class="block-icon">${icon}</div>
+          <div>
+            <div class="block-name">${name}</div>
+            <div class="block-sub">${sub}</div>
+          </div>
+        </div>
+        <div class="block-right">
+          <span class="risk-badge ${riskClass(data.risk)}">${data.risk} Risk</span>
+          <span class="block-chevron open" id="chev-${bid}">▾</span>
+        </div>
+      </div>
+      <div class="block-body open" id="${bid}">
+        ${findingsHtml(data.findings)}
+        ${adaptHtml(data.adaptations)}
+      </div>
+    </div>`;
+}
+
+function toggleBlock(bid) {
+  const body = document.getElementById(bid);
+  const chev = document.getElementById('chev-' + bid);
+  body.classList.toggle('open');
+  chev.classList.toggle('open', body.classList.contains('open'));
+}
+
+function renderResults(a) {
+  const overall = overallRisk(a);
+  const avg = Math.round((a.linguistic.score + a.cultural.score) / 2);
+  const now = new Date().toLocaleDateString('en-GB', { day:'numeric', month:'long', year:'numeric' });
+
+  document.getElementById('results').innerHTML = `
+    <div class="fu fu1">
+      <div class="result-rule-top"></div>
+      <div class="result-dateline">${a.brand} - Cultural Audit Report - ${now}</div>
+      <div class="result-slogan">"${a.slogan}"</div>
+      <div class="result-rule-mid"></div>
+      <div class="result-route">
+        <span class="route-from">${a.source}</span>
+        <span class="route-arrow">→</span>
+        <span class="route-to">${a.target}</span>
+        <span class="risk-badge ${riskClass(overall)}">${cap(overall)} Overall Risk</span>
+      </div>
+    </div>
+
+    ${a.literal_misstep ? `
+    <div class="misstep fu fu2">
+      <div class="misstep-label">What Your Slogan Actually Says</div>
+      <div class="misstep-text">${a.literal_misstep}</div>
+      <div class="misstep-sub">Direct translation result in the target market</div>
+    </div>` : ''}
+
+    <div class="score-strip fu fu2">
+      <div class="score-card ${scoreClass(overall)}">
+        <div class="score-label">Overall Safety</div>
+        <div class="score-number">${avg}</div>
+        <div class="score-risk">${cap(overall)} Risk</div>
+      </div>
+      <div class="score-card ${scoreClass(a.linguistic.risk)}">
+        <div class="score-label">Linguistic Safety</div>
+        <div class="score-number">${a.linguistic.score}</div>
+        <div class="score-risk">${a.linguistic.risk} Risk</div>
+      </div>
+      <div class="score-card ${scoreClass(a.cultural.risk)}">
+        <div class="score-label">Cultural Safety</div>
+        <div class="score-number">${a.cultural.score}</div>
+        <div class="score-risk">${a.cultural.risk} Risk</div>
+      </div>
+    </div>
+
+    ${blockHtml('ling', '🔤', 'Linguistic Audit', 'Phonetics - Semantics - Script - Direct Translation', a.linguistic, 'fu3')}
+    ${blockHtml('cult', '🌐', 'Cultural Audit', 'Emotion - Symbolism - Political Context - History', a.cultural, 'fu4')}
+
+    <div class="disclaimer-block fu fu5">
+      <p><strong>Audit Philosophy -</strong> LingoNexus identifies risk across linguistic, emotional, cultural, and political dimensions. Every finding is grounded in documented real-world knowledge. This report flags and informs - all final decisions require human cultural expertise and native speaker review before deployment.</p>
+      <div class="made-by">Designed and built by <span>Budhaditya</span> - LingoNexus Cultural Intelligence Engine</div>
+    </div>`;
+
+  const el = document.getElementById('results');
+  el.style.display = 'block';
+  el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+</script>
+</body>
+</html>
